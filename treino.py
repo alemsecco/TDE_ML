@@ -191,24 +191,30 @@ def train_and_save(X, y, preprocessor, model='rfr', model_path=None):
 
 def recommend_sustainable(df_row: pd.Series):
     # Recomendador baseado em regras simples:
-    # - Se região Norte ou Nordeste e alta precipitação média -> hidrelétrica/biomassa pode ser viável
-    # - Se temperatura média alta e muita irradiação esperada (proxy: baixa precipitação) -> solar
+    # - Se precipitação alta -> potencial hidrelétrico
+    # - Se temperatura média alta e muita irradiação esperada (proxy: baixa precipitação) -> solar com condições ótimas
     # - Se vento médio alto -> eólica
-    # Isto é uma heurística inicial; pode ser melhorada com mapas de custo/insolação/vento.
+    # - Se região com agricultura significativa -> biomassa pode ser viável
+    # Isto é uma heurística inicial; pode ser melhorada com mapas de custo/insolação/vento/produção agrícola/relevo.
     recs = []
     reg = str(df_row.get('Regiao', '')).lower()
     precip = float(df_row.get('PRECIPITACAO TOTAL, MENSAL (AUT)(mm)') or 0)
     temp = float(df_row.get('TEMPERATURA MEDIA, MENSAL (AUT)(°C)') or 0)
     vento = float(df_row.get('VENTO, VELOCIDADE MEDIA MENSAL (AUT)(m/s)') or 0)
 
+    # Regiões com potencial significativo para biomassa
+    regioes_biomassa = ('centro-oeste', 'sudeste', 'sul')
+    
     if vento >= 6.0:
-        recs.append('Eólica')
-    if precip >= 200 and reg in ('norte', 'nordeste'):
-        recs.append('Hidrelétrica / Pequenas Centrais Hidrelétricas (PCH)')
+        recs.append('Energia Eólica (condições ótimas)')
+    if precip >= 200:  # Considera potencial hidrelétrico em todas as regiões com alta precipitação
+        recs.append('Energia Hidrelétrica / PCH (alta precipitação favorável)')
     if precip < 100 and temp >= 22:
-        recs.append('Solar fotovoltaica')
+        recs.append('Energia Solar Fotovoltaica (condições ótimas)')
+    if reg in regioes_biomassa:
+        recs.append('Energia de Biomassa (região com potencial agrícola)')
     if not recs:
-        recs.append('Solar fotovoltaica (padrão)')
+        recs.append('Energia Solar Fotovoltaica (alternativa viável para todas as regiões)')
     return '; '.join(recs)
 
 
