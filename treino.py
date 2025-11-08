@@ -234,7 +234,10 @@ if __name__ == '__main__':
 
     # Gerar recomendações simples para cada linha e salvar amostra
     df_sample = df.dropna(subset=['MesAno', 'Regiao']).copy()
+    # Converter MesAno para datetime para ordenação correta
+    df_sample['MesAno_dt'] = pd.to_datetime(df_sample['MesAno'] + '-01')
+    df_sample = df_sample.sort_values('MesAno_dt')
     df_sample['Recomendacao'] = df_sample.apply(recommend_sustainable, axis=1)
     out_rec = os.path.join(MODEL_DIR, 'recomendacoes_amostra.csv')
-    df_sample[['MesAno', 'Regiao', 'Consumo', 'TEMPERATURA MEDIA, MENSAL (AUT)(°C)', 'PRECIPITACAO TOTAL, MENSAL (AUT)(mm)', 'VENTO, VELOCIDADE MEDIA MENSAL (AUT)(m/s)', 'Recomendacao']].head(200).to_csv(out_rec, index=False, sep=';', decimal=',')
+    df_sample[['MesAno', 'Regiao', 'Consumo', 'TEMPERATURA MEDIA, MENSAL (AUT)(°C)', 'PRECIPITACAO TOTAL, MENSAL (AUT)(mm)', 'VENTO, VELOCIDADE MEDIA MENSAL (AUT)(m/s)', 'Recomendacao']].to_csv(out_rec, index=False, sep=';', decimal=',')
     print('Recomendações de amostra salvas em', out_rec)

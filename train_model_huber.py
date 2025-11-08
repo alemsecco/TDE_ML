@@ -11,6 +11,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import TimeSeriesSplit
 
+
 # Importar funções do treino.py
 from treino import load_data, preprocess, recommend_sustainable
 
@@ -106,14 +107,14 @@ def train_huber(n_splits=5):
     print(f'Test predictions saved to {predictions_path}')
 
     # Salvar amostra com recomendações
-    cols_amostra = ['MesAno', 'Regiao', 'Consumo', 
+    cols_amostra = ['MesAno', 'Regiao', 'Estacao', 'Consumo', 
                     'TEMPERATURA MEDIA, MENSAL (AUT)(°C)',
                     'PRECIPITACAO TOTAL, MENSAL (AUT)(mm)',
                     'VENTO, VELOCIDADE MEDIA MENSAL (AUT)(m/s)',
                     'Recomendacao']
     
     sample_path = os.path.join(MODEL_DIR, 'recomendacoes_amostra_huber.csv')
-    df[cols_amostra].head(200).to_csv(sample_path, index=False, sep=';', decimal=',')
+    df[cols_amostra].to_csv(sample_path, index=False, sep=';', decimal=',')
     print(f'Recommendations sample saved to {sample_path}')
 
     # Atualizar resultados comparativos
